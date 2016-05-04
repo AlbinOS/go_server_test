@@ -1,20 +1,29 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
-	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
-	t := time.Now()
-	fmt.Println(t)
-	fmt.Println("Wooty woot !")
-	fmt.Println("------------")
+// GetPing is the handler for the GET /info/ping route.
+// This will respond by a pong JSON message if the server is alive
+func GetPing(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"Pong": "OK"})
 }
 
+// New initialize the Unleash application based on the gin http framework
 func main() {
-	http.HandleFunc("/", handler)
-	http.ListenAndServe(":4030", nil)
+
+	// Create a default gin stack
+	server := gin.Default()
+
+	// Ping route
+	api := server.Group("/api")
+	api.GET("/ping", GetPing)
+
+	// Listen and serve on port defined by environment variable UNLEASH_PORT
+	if err := server.Run(":2015"); err != nil {
+		panic("Error while starting unleash ! Cause: " + err.Error())
+	}
 }
